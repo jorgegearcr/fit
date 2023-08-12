@@ -9,10 +9,12 @@
 
 import os
 
-from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets
+from PyQt6 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui
 
 from view.error import Error as ErrorView
 from controller.configurations.tabs.packetcapture.packetcapture import PacketCapture
+from controller.configurations.tabs.network.networktools import NetworkTools
+
 
 from common.utility import *
 from common.constants.view.init import *
@@ -131,15 +133,16 @@ class Init(QtCore.QObject):
                         | QtWidgets.QMessageBox.StandardButton.No
                     )
                     msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    msg.setWindowIcon(
+                        QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg"))
+                    )
 
                     return_value = msg.exec()
                     if return_value == QtWidgets.QMessageBox.StandardButton.Yes:
                         donwload_and_install = DownloadAndInstallNpcap(url)
                         donwload_and_install.exec()
                     else:
-                        options = PacketCapture().options
-                        options["enabled"] = False
-                        PacketCapture().options = options
+                        self.__disable_traceroute_and_packet_capture()
 
                 except Exception as e:
                     error_dlg = ErrorView(
@@ -152,11 +155,32 @@ class Init(QtCore.QObject):
         # If os is win check
         elif get_platform() == "lin":
             if is_root() is False:
-                error_dlg = ErrorView(
-                QtWidgets.QMessageBox.Icon.Warning,
-                ROOT_PRIVILEGES,
-                ERR_ROOT_PRIVILEGES,
-                "",
+                msg = QtWidgets.QMessageBox()
+                msg.setWindowFlags(
+                    QtCore.Qt.WindowType.CustomizeWindowHint
+                    | QtCore.Qt.WindowType.WindowTitleHint
                 )
+                msg.setWindowTitle(ROOT_PRIVILEGES)
+                msg.setText(ERR_ROOT_PRIVILEGES)
+                msg.setWindowIcon(QtGui.QIcon(os.path.join("assets/svg/", "FIT.svg")))
+                msg.setStandardButtons(
+                    QtWidgets.QMessageBox.StandardButton.Yes
+                    | QtWidgets.QMessageBox.StandardButton.No
+                )
+                msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
 
-                error_dlg.exec()
+                return_value = msg.exec()
+
+                if return_value == int(QtWidgets.QMessageBox.StandardButton.Yes):
+                    self.__disable_traceroute_and_packet_capture()
+                else:
+                    self.__quit()
+
+    def __disable_traceroute_and_packet_capture(self):
+        configuration = NetworkTools().configuration
+        configuration["traceroute"] = False
+        NetworkTools().configuration = configuration
+
+        options = PacketCapture().options
+        options["enabled"] = False
+        PacketCapture().options = options
