@@ -159,4 +159,4 @@ class Init(QtCore.QObject):
                 "",
                 )
 
-            error_dlg.exec()
+                error_dlg.exec()

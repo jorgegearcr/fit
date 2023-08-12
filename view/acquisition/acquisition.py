@@ -74,10 +74,6 @@ class Acquisition(Base):
                 and NetworkToolsController().configuration["nslookup"] is False
                 or task == Tasks.TRACEROUTE
                 and NetworkToolsController().configuration["traceroute"] is False
-                or get_platform() == "win"
-                and is_npcap_installed() is False 
-                or get_platform() == "lin"
-                and is_root() is False
             ):
                 _tasks.remove(task)
 

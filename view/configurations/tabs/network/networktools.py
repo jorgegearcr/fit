@@ -16,6 +16,7 @@ from view.configurations.tabs.network.networkcheck import (
 from controller.configurations.tabs.network.networktools import (
     NetworkTools as NetworkToolsController,
 )
+from common.utility import is_npcap_installed, get_platform, is_root
 from common.constants.view.network import *
 
 
@@ -55,7 +56,12 @@ class NetworkTools(QtWidgets.QWidget):
             parent=self.enable_network_tools_box
         )
         self.traceroute_checkbox.setGeometry(QtCore.QRect(20, 80, 91, 17))
-        self.traceroute_checkbox.setChecked(True)
+
+        if get_platform() == "win":
+            self.traceroute_checkbox.setEnabled(is_npcap_installed())
+        elif get_platform() == "lin":
+            self.traceroute_checkbox.setEnabled(is_root())
+
         self.traceroute_checkbox.setObjectName("traceroute")
 
         self.ssl_keylog_checkbox = QtWidgets.QCheckBox(
@@ -99,7 +105,15 @@ class NetworkTools(QtWidgets.QWidget):
         self.ssl_certificate_checkbox.setChecked(
             self.controller.configuration["ssl_certificate"]
         )
-        self.traceroute_checkbox.setChecked(self.controller.configuration["traceroute"])
+
+        enabled = self.controller.configuration["traceroute"]
+        if get_platform() == "win":
+            if is_npcap_installed() is False and enabled == True:
+                enabled = False
+        elif get_platform() == "lin":
+            if is_root() is False and enabled == True:
+                enabled = False
+        self.traceroute_checkbox.setChecked(enabled)
 
     def __get_current_values(self):
         for keyword in self.configuration:
