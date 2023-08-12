@@ -34,7 +34,7 @@ from controller.configurations.tabs.network.networktools import (
 )
 
 
-from common.utility import is_npcap_installed, get_platform
+from common.utility import is_npcap_installed, get_platform, is_root
 
 from PyQt6.QtCore import pyqtSignal
 
@@ -75,7 +75,9 @@ class Acquisition(Base):
                 or task == Tasks.TRACEROUTE
                 and NetworkToolsController().configuration["traceroute"] is False
                 or get_platform() == "win"
-                and is_npcap_installed() is False
+                and is_npcap_installed() is False 
+                or get_platform() == "lin"
+                and is_root() is False
             ):
                 _tasks.remove(task)
 

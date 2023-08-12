@@ -11,7 +11,7 @@ from PyQt6 import QtCore, QtWidgets
 from controller.configurations.tabs.packetcapture.packetcapture import (
     PacketCapture as PacketCaptureController,
 )
-from common.utility import is_npcap_installed, get_platform
+from common.utility import is_npcap_installed, get_platform, is_root
 
 __is_tab__ = True
 
@@ -36,6 +36,8 @@ class PacketCapture(QtWidgets.QWidget):
         self.enabled_checkbox.stateChanged.connect(self._is_enabled_packet_capture)
         if get_platform() == "win":
             self.enabled_checkbox.setEnabled(is_npcap_installed())
+        elif get_platform() == "lin":
+            self.enabled_checkbox.setEnabled(is_root())
 
         self.enabled_checkbox.setObjectName("enabled")
 
@@ -59,6 +61,9 @@ class PacketCapture(QtWidgets.QWidget):
         enabled = self.controller.options["enabled"]
         if get_platform() == "win":
             if is_npcap_installed() is False and enabled == True:
+                enabled = False
+        elif get_platform() == "lin":
+            if is_root() is False and enabled == True:
                 enabled = False
 
         self.enabled_checkbox.setChecked(enabled)

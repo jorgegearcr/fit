@@ -149,3 +149,14 @@ class Init(QtCore.QObject):
                         str(e),
                     )
                     error_dlg.exec()
+        # If os is win check
+        elif get_platform() == "lin":
+            if is_root() is False:
+                error_dlg = ErrorView(
+                QtWidgets.QMessageBox.Icon.Warning,
+                ROOT_PRIVILEGES,
+                ERR_ROOT_PRIVILEGES,
+                "",
+                )
+
+            error_dlg.exec()

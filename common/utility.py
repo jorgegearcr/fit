@@ -254,3 +254,6 @@ def get_logo():
 def get_language():
     controller = LanguageController()
     return controller.options["language"]
+
+def is_root():
+    return not bool(os.geteuid())
