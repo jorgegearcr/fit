@@ -7,6 +7,7 @@
 # -----
 ######
 
+
 from model.case import Case as CaseModel
 
 from urllib.parse import urlparse
